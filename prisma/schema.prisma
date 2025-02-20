@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  PRO
+  ADMIN
+}
+
+enum ProjectStatus {
+  DRAFT
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum DocumentType {
+  PLAN
+  PHOTO
+  FINANCEMENT
+  RENOVATION
+  VENTE
+  AUTRE
+}
+
+enum QuoteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_REVIEW
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  role        Role      @default(USER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  profile     Profile?
+  projects    Project[]
+  companies   Company[]
+  messages    Message[]
+  payments    Payment[]
+  notifications Notification[]
+  subscription Subscription?
+  reviews     Review[]
+  activityLogs ActivityLog[] // Add this field for opposite relation
+}
+
+
+model Profile {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  phone     String?
+  address   String?
+  avatar    String?
+}
+
+model Subscription {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  plan      String  // Nom du plan
+  startDate DateTime
+  endDate   DateTime
+  status    String  @default("ACTIVE")
+}
+
+model Project {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  name          String
+  location      String
+  floor         Int?
+  rooms         Int?
+  description   String?
+  technicalInfo String?
+  materials     Json?
+  documents     Document[]
+  companies     ProjectCompany[]
+  quotes        Quote[]
+  chats     Chat[]   // Add this field for the one-to-many relation
+  status        ProjectStatus  @default(DRAFT)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tasks         Task[]
+  activityLogs  ActivityLog[]  // Add this field for opposite relation
+}
+
+model Company {
+  id          String         @id @default(uuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  name        String
+  industry    String
+  description String?
+  projects    ProjectCompany[]
+  quotes      Quote[]
+  reviews     Review[]
+  createdAt   DateTime       @default(now())
+}
+
+model ProjectCompany {
+  id         String  @id @default(uuid())
+  projectId  String
+  companyId  String
+  project    Project @relation(fields: [projectId], references: [id])
+  company    Company @relation(fields: [companyId], references: [id])
+}
+
+model Quote {
+  id               String      @id @default(uuid())
+  projectId        String
+  companyId        String
+  project          Project     @relation(fields: [projectId], references: [id])
+  company          Company     @relation(fields: [companyId], references: [id])
+  totalCost        Float
+  details          Json
+  availability     DateTime?
+  estimatedDuration Int?
+  status           QuoteStatus @default(PENDING)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  projectId String   // Non-nullable projectId for one-to-many relation
+  project   Project  @relation(fields: [projectId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  userId    String
+  chat      Chat    @relation(fields: [chatId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id        String      @id @default(uuid())
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id])
+  type      DocumentType
+  url       String
+  createdAt DateTime    @default(now())
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  priority    TaskPriority @default(LOW) // ou une autre valeur par défaut
+  startDate   DateTime?
+  endDate     DateTime?
+  assignedTo  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Payment {
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  amount    Float
+  status    PaymentStatus @default(PENDING)
+  paymentDate   DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  content   String
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  action      String
+  createdAt   DateTime @default(now())
+}
