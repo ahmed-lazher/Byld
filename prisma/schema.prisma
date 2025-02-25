@@ -1,9 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// -------------------------------
+// Générateur et Source de Données
+// -------------------------------
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,232 +10,809 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  PRO
-  ADMIN
+//////////////////////////////////
+// ENUMÉRATIONS DÉTAILLÉES
+//////////////////////////////////
+
+enum UserRole {
+  CLIENT        // Rôle utilisateur : Client
+  COMPANY       // Rôle utilisateur : Entreprise
+  ADMIN         // Rôle utilisateur : Administrateur
 }
 
-enum ProjectStatus {
-  DRAFT
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
+enum SubscriptionType {
+  FREE          // Abonnement Gratuit
+  ANNUAL        // Abonnement Annuel
+  CREDIT        // Abonnement par Crédit
+}
+
+enum SubscriptionStatus {
+  ACTIVE        // Statut : Actif
+  INACTIVE      // Statut : Inactif
+  EXPIRED       // Statut : Expiré
 }
 
 enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
+  PENDING       // Paiement en attente
+  SUCCESS       // Paiement réussi
+  FAILURE       // Paiement échoué
 }
 
-enum DocumentType {
-  PLAN
-  PHOTO
-  FINANCEMENT
-  RENOVATION
-  VENTE
-  AUTRE
+enum PaymentType {
+  SUBSCRIPTION  // Type : Paiement d'abonnement
+  CREDIT        // Type : Paiement par crédit
+}
+
+enum PaymentMethod {
+  CREDIT_CARD   // Méthode de paiement : Carte de Crédit
+  BANK_TRANSFER  // Méthode de paiement : Virement Bancaire
+  PAYPAL        // Méthode de paiement : PayPal
+  OTHER         // Autres Méthodes de paiement
+}
+
+enum ProjectStatus {
+  DRAFT         // Statut : Ébauche
+  PENDING_QUOTES // Statut : En attente de devis
+  IN_PROGRESS   // Statut : En cours
+  COMPLETED     // Statut : Terminé
+  CANCELLED     // Statut : Annulé
+  SUSPENDED     // Statut : Suspendu
+}
+
+enum WorkStatus {
+  PENDING       // Statut du travail : En attente
+  APPROVED      // Statut du travail : Approuvé
+  IN_PROGRESS   // Statut du travail : En cours
+  COMPLETED     // Statut du travail : Terminé
 }
 
 enum QuoteStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  IN_REVIEW
+  PENDING       // Statut de devis : En attente
+  ACCEPTED      // Statut de devis : Accepté
+  REJECTED      // Statut de devis : Rejeté
+  UNDER_REVIEW  // Statut de devis : Sous révision
+}
+
+enum DocumentType {
+  PLAN          // Type de document : Plan
+  PHOTO         // Type de document : Photo
+  CONTRACT      // Type de document : Contrat
+  REPORT        // Type de document : Rapport
+  INVOICE       // Type de document : Facture
+  FINANCING     // Type de document : Financement
+  SALE          // Type de document : Vente
+  RENOVATION    // Type de document : Rénovation
+  OTHER         // Autre type de document
+}
+
+enum DocumentCategory {
+  LEGAL         // Catégorie : Légal
+  FINANCIAL     // Catégorie : Financier
+  TECHNICAL     // Catégorie : Technique
+  OTHER         // Autre catégorie
+}
+
+enum UploadedFileType {
+  PDF           // Type de fichier : PDF
+  IMAGE         // Type de fichier : Image
+  WORD          // Type de fichier : Document Word
+  EXCEL         // Type de fichier : Document Excel
+  TEXT          // Type de fichier : Document Texte
+  OTHER         // Autre type de fichier
+}
+
+enum MessageStatus {
+  UNREAD        // Statut de message : Non lu
+  READ          // Statut de message : Lu
+  PENDING       // Statut de message : En attente
+}
+
+enum TransactionStatus {
+  SUCCESS       // Statut de transaction : Réussi
+  FAILURE       // Statut de transaction : Échoué
+  PENDING       // Statut de transaction : En attente
+}
+
+enum NotificationType {
+  GENERAL_ALERT          // Type de notification : Alerte générale
+  PAYMENT_CONFIRMATION  // Type de notification : Confirmation de paiement
+  NEW_QUOTE_REQUEST      // Type de notification : Demande de devis
+  QUOTE_ACCEPTED         // Type de notification : Devis accepté
+  QUOTE_REJECTED         // Type de notification : Devis rejeté
+  ACCOUNT_ACTIVATION     // Type de notification : Activation de compte
+  LICENSE_EXPIRATION     // Type de notification : Expiration de licence
+  PROJECT_UPDATE         // Type de notification : Mise à jour de projet
+  TASK_UPDATE            // Type de notification : Mise à jour de tâche
+}
+
+enum LogType {
+  ERROR         // Type de journal : Erreur
+  INFO          // Type de journal : Information
+  WARNING       // Type de journal : Avertissement
 }
 
 enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  DELAYED
+  PENDING       // Statut de tâche : En attente
+  IN_PROGRESS   // Statut de tâche : En cours
+  COMPLETED     // Statut de tâche : Terminé
+  CANCELLED     // Statut de tâche : Annulé
+  ASSIGNED      // Statut de tâche : Assigné
+  DELAYED       // Statut de tâche : Retardé
 }
 
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
+enum InvitationStatus {
+  PENDING       // Statut d'invitation : En attente
+  ACCEPTED      // Statut d'invitation : Accepté
+  DECLINED      // Statut d'invitation : Refusé
+  EXPIRED       // Statut d'invitation : Expiré
 }
+
+enum RefundStatus {
+  PENDING       // Statut de remboursement : En attente
+  APPROVED      // Statut de remboursement : Approuvé
+  DECLINED      // Statut de remboursement : Refusé
+}
+
+enum MaterialType {
+  BRICK         // Type de matériau : Brique
+  PAINT         // Type de matériau : Peinture
+  WOOD          // Type de matériau : Bois
+  CONCRETE      // Type de matériau : Béton
+  STEEL         // Type de matériau : Acier
+  TILE          // Type de matériau : Carreau
+  GLASS         // Type de matériau : Verre
+  OTHER         // Autre type de matériau
+}
+
+enum TradeType {
+  ELECTRICIAN   // Type de métier : Électricien
+  PLUMBER       // Type de métier : Plombier
+  CARPENTER     // Type de métier : Charpentier
+  PAINTER       // Type de métier : Peintre
+  MASON         // Type de métier : Maçon
+  HVAC          // Type de métier : CVC
+  OTHER         // Autre type de métier
+}
+
+enum AvailabilityStatus {
+  AVAILABLE      // Statut de disponibilité : Disponible
+  UNAVAILABLE    // Statut de disponibilité : Non disponible
+  PENDING        // Statut de disponibilité : En attente
+}
+
+enum MeetingStatus {
+  PENDING        // Statut de réunion : En attente
+  SCHEDULED      // Statut de réunion : Prévu
+  CANCELLED      // Statut de réunion : Annulé
+}
+
+// MODELS : UTILISATEURS & PROFILS
+//////////////////////////////////
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  role        Role      @default(USER)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  profile     Profile?
-  projects    Project[]
-  companies   Company[]
-  messages    Message[]
-  payments    Payment[]
-  notifications Notification[]
-  subscription Subscription?
-  reviews     Review[]
-  activityLogs ActivityLog[] // Add this field for opposite relation
+  id                  String            @id @default(uuid()) @db.Uuid
+  email               String            @unique // Identifiant unique par email
+  passwordHash        String            // Mot de passe haché
+  name                String            // Nom complet de l'utilisateur
+  role                UserRole          // Rôle de l'utilisateur dans le système
+  pushToken           String?           // Jeton pour notifications push
+
+  // Relations
+  clientProfile       ClientProfile?    @relation("ClientUser")
+  companyProfile      CompanyProfile?   @relation("CompanyUser")
+
+  logs                Log[]             // Journal des actions
+  sentInvitations     Invitation[]      @relation("SentInvitations")
+  receivedInvitations Invitation[]      @relation("ReceivedInvitations")
+  chatParticipants    ChatParticipant[]
+  taskProgresses      TaskProgress[]
+  projectUpdates      ProjectUpdate[]
+  notifications       Notification[]    @relation("UserNotifications")
+  transactions        Transaction[]     @relation("UserTransactions")
+  invoices            Invoice[]         @relation("UserInvoices")
+  reviews             Review[]          @relation("UserReviews")
+  uploadedFiles       UploadedFile[]    @relation("UploadedFiles")
+  createdAccessLinks  AccessLink[]      @relation("CreatedAccessLinks")
+  usedAccessLinks     AccessLink[]      @relation("UsedAccessLinks")
+  meetingResponses    MeetingResponse[]  @relation("MeetingResponseUser")
+  sentMessages        Message[]         @relation("SentMessages")
+  receivedMessages    Message[]         @relation("ReceivedMessages")
+  
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 }
 
+model ClientProfile {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId        String            @unique @db.Uuid // Relation unique avec l'utilisateur
+  user          User              @relation("ClientUser", fields: [userId], references: [id])
+  
+  // Informations de contact
+  firstName     String            // Prénom du client
+  lastName      String            // Nom de famille du client
+  phone         String?           // Numéro de téléphone
+  address       String?           // Adresse physique
 
-model Profile {
-  id        String  @id @default(uuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id])
-  firstName String
-  lastName  String
-  phone     String?
-  address   String?
-  avatar    String?
+  // Projets et abonnements associés
+  projects      Project[]         @relation("ClientProjects")
+  subscriptions Subscription[]    @relation("ClientSubscriptions")
+  payments      Payment[]         @relation("ClientPayments")
+  
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
+
+model CompanyProfile {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId        String            @unique @db.Uuid 
+  user          User              @relation("CompanyUser", fields: [userId], references: [id])
+
+  // Informations sur l'entreprise
+  companyName      String           @unique 
+  address          String            
+  phone            String            
+  qualifications   String?          
+
+  // Liens vers d'autres modèles
+  reviews          Review[]         @relation("CompanyReviews")
+  quotes           Quote[]          @relation("CompanyQuotes")
+  invitedProjects  Project[]        @relation("InvitedCompanies")
+  subscriptions    Subscription[]    @relation("CompanySubscriptions")
+  payments         Payment[]         @relation("CompanyPayments")
+  workSites        WorkSite[]       @relation("CompanyWorkSites") // Ajout de cette ligne pour indiquer la relation
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+// MODELS : INVITATION
+//////////////////////////////////
+
+model Invitation {
+  id             String           @id @default(uuid()) @db.Uuid
+  token          String           @unique // Jeton unique pour l'invitation
+  email          String           // Email du destinataire
+  projectId      String           @db.Uuid // Référence au projet
+  project        Project          @relation("ProjectInvitations", fields: [projectId], references: [id])
+  
+  // Informations sur l'expéditeur et le destinataire
+  senderId       String           @db.Uuid // Utilisateur ayant envoyé l'invitation
+  sender         User             @relation("SentInvitations", fields: [senderId], references: [id])
+  
+  recipientId    String           @db.Uuid // Utilisateur recevant l'invitation
+  recipient      User             @relation("ReceivedInvitations", fields: [recipientId], references: [id])
+  
+  status         InvitationStatus  @default(PENDING) // Statut de l'invitation
+  expiresAt      DateTime         // Date d'expiration de l'invitation
+  createdAt      DateTime         @default(now()) // Date de création
+  updatedAt      DateTime         @updatedAt
+}
+
+// MODELS : ABONNEMENTS, PAIEMENTS, FACTURATION
+//////////////////////////////////
 
 model Subscription {
-  id        String  @id @default(uuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id])
-  plan      String  // Nom du plan
-  startDate DateTime
-  endDate   DateTime
-  status    String  @default("ACTIVE")
-}
+  id             String              @id @default(uuid()) @db.Uuid
+  type           SubscriptionType     // Type d'abonnement
+  status         SubscriptionStatus   @default(ACTIVE) // Statut de l'abonnement
+  
+  // Dates de début et de fin de l'abonnement
+  startDate      DateTime            @default(now())
+  endDate        DateTime?
 
-model Project {
-  id            String         @id @default(uuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
-  name          String
-  location      String
-  floor         Int?
-  rooms         Int?
-  description   String?
-  technicalInfo String?
-  materials     Json?
-  documents     Document[]
-  companies     ProjectCompany[]
-  quotes        Quote[]
-  chats     Chat[]   // Add this field for the one-to-many relation
-  status        ProjectStatus  @default(DRAFT)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  tasks         Task[]
-  activityLogs  ActivityLog[]  // Add this field for opposite relation
-}
+  // Références aux utilisateurs
+  clientId       String?             @db.Uuid // Référence facultative à un profil client
+  client         ClientProfile?      @relation("ClientSubscriptions", fields: [clientId], references: [id])
+  
+  companyId      String?             @db.Uuid // Référence facultative à un profil d'entreprise
+  company        CompanyProfile?     @relation("CompanySubscriptions", fields: [companyId], references: [id])
 
-model Company {
-  id          String         @id @default(uuid())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id])
-  name        String
-  industry    String
-  description String?
-  projects    ProjectCompany[]
-  quotes      Quote[]
-  reviews     Review[]
-  createdAt   DateTime       @default(now())
-}
-
-model ProjectCompany {
-  id         String  @id @default(uuid())
-  projectId  String
-  companyId  String
-  project    Project @relation(fields: [projectId], references: [id])
-  company    Company @relation(fields: [companyId], references: [id])
-}
-
-model Quote {
-  id               String      @id @default(uuid())
-  projectId        String
-  companyId        String
-  project          Project     @relation(fields: [projectId], references: [id])
-  company          Company     @relation(fields: [companyId], references: [id])
-  totalCost        Float
-  details          Json
-  availability     DateTime?
-  estimatedDuration Int?
-  status           QuoteStatus @default(PENDING)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-}
-
-model Chat {
-  id        String   @id @default(uuid())
-  projectId String   // Non-nullable projectId for one-to-many relation
-  project   Project  @relation(fields: [projectId], references: [id])
-  messages  Message[]
-}
-
-model Message {
-  id        String   @id @default(uuid())
-  chatId    String
-  userId    String
-  chat      Chat    @relation(fields: [chatId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-  content   String
-  createdAt DateTime @default(now())
-}
-
-model Document {
-  id        String      @id @default(uuid())
-  projectId String
-  project   Project     @relation(fields: [projectId], references: [id])
-  type      DocumentType
-  url       String
-  createdAt DateTime    @default(now())
-}
-
-model Task {
-  id          String    @id @default(uuid())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id])
-  title       String
-  description String?
-  status      TaskStatus @default(PENDING)
-  priority    TaskPriority @default(LOW) // ou une autre valeur par défaut
-  startDate   DateTime?
-  endDate     DateTime?
-  assignedTo  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  // Paiements associés à l'abonnement
+  payments       Payment[]           @relation("SubscriptionPayments")
+  
+  createdAt      DateTime            @default(now()) // Date de création
+  updatedAt      DateTime            @updatedAt // Date de dernière mise à jour
 }
 
 model Payment {
-  id        String       @id @default(uuid())
-  userId    String
-  user      User         @relation(fields: [userId], references: [id])
-  amount    Float
-  status    PaymentStatus @default(PENDING)
-  paymentDate   DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String         @id @default(uuid()) @db.Uuid
+  method         PaymentMethod  // Méthode de paiement
+  amount         Float          // Montant du paiement
+  type           PaymentType    // Type de paiement
+
+  status         PaymentStatus   // Statut du paiement
+  date           DateTime       @default(now()) // Date du paiement
+  
+  // Références aux utilisateurs
+  clientId       String?        @db.Uuid // Référence facultative à un profil client
+  client         ClientProfile?  @relation("ClientPayments", fields: [clientId], references: [id])
+  
+  companyId      String?        @db.Uuid // Référence facultative à un profil d'entreprise
+  company        CompanyProfile?  @relation("CompanyPayments", fields: [companyId], references: [id])
+
+  // Référence à un abonnement
+  subscriptionId String?        @db.Uuid // Référence facultative à un abonnement
+  subscription   Subscription?  @relation("SubscriptionPayments", fields: [subscriptionId], references: [id])
+
+  // Transactions et remboursements associés
+  transactions   Transaction[]  @relation("PaymentTransactions")
+  refunds        Refund[]       // Remboursements associés à ce paiement
+  
+  createdAt      DateTime        @default(now()) // Date de création
+  updatedAt      DateTime        @updatedAt // Date de dernière mise à jour
 }
 
-model Notification {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  content   String
-  isRead    Boolean   @default(false)
-  createdAt DateTime  @default(now())
+model Invoice {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @db.Uuid // Référence à l'utilisateur
+  user        User           @relation("UserInvoices", fields: [userId], references: [id])
+  
+  quoteId     String?        @unique @db.Uuid // Référence facultative à un devis
+  quote       Quote?         @relation("QuoteInvoice", fields: [quoteId], references: [id])
+  
+  status      PaymentStatus  @default(PENDING) // Statut de la facture
+  dueDate     DateTime       // Date d'échéance de la facture
+  paymentDate DateTime?      // Date de paiement de la facture
+  
+  createdAt   DateTime       @default(now()) // Date de création
+  updatedAt   DateTime       @updatedAt // Date de dernière mise à jour
+
+  @@index([userId, status]) // Index pour faciliter les requêtes sur utilisateur et statut
+}
+
+model Transaction {
+  id         String   @id @default(uuid()) @db.Uuid
+  amount     Decimal  @db.Decimal(10, 2) // Montant de la transaction
+  status     TransactionStatus // Statut de la transaction
+  date       DateTime @default(now()) // Date de la transaction
+  
+  // Références aux paiements
+  paymentId  String   @db.Uuid // Référence au paiement
+  payment    Payment  @relation("PaymentTransactions", fields: [paymentId], references: [id])
+  
+  // Référence à l'utilisateur
+  userId     String?  @db.Uuid // Référence facultative à un utilisateur
+  user       User?    @relation("UserTransactions", fields: [userId], references: [id])
+  
+  createdAt  DateTime @default(now()) // Date de création
+  updatedAt  DateTime @default(now()) // Date de dernière mise à jour
+
+  @@index([paymentId, status]) // Index pour faciliter les requêtes sur paiement et statut
+}
+
+model Refund {
+  id         String       @id @default(uuid()) @db.Uuid
+  paymentId  String       @db.Uuid // Référence au paiement
+  amount     Float        // Montant du remboursement
+  reason     String?      // Raison du remboursement
+  status     RefundStatus @default(PENDING) // Statut du remboursement
+
+  payment    Payment      @relation(fields: [paymentId], references: [id])
+  createdAt  DateTime     @default(now()) // Date de création
+  updatedAt  DateTime     @default(now()) // Date de dernière mise à jour
+}
+
+// MODELS : HISTORISATION & LOGS
+//////////////////////////////////
+
+model Log {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid // Référence à l'utilisateur
+  user       User     @relation(fields: [userId], references: [id])
+  
+  type       LogType  // Type de journal
+  message    String    // Message ou description de l'action
+  action     String?   // Action associée
+  
+  ipAddress  String?   // Adresse IP de l'utilisateur
+  userAgent  String?   // Agent utilisateur (navigateur, OS, etc.)
+  
+  createdAt  DateTime @default(now()) // Date de création
+  updatedAt  DateTime @default(now()) // Date de dernière mise à jour
+
+  @@index([userId, type]) // Index pour faciliter les requêtes
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  rating      Int
-  comment     String?
-  createdAt   DateTime @default(now())
+  id         String           @id @default(uuid()) @db.Uuid
+  rating     Int              // Évaluation (note)
+  comment    String?          // Commentaire laissé par l'utilisateur
+  
+  // Références aux utilisateurs et entreprises
+  userId     String           @db.Uuid // Référence à l'utilisateur qui a laissé l'évaluation
+  user       User             @relation("UserReviews", fields: [userId], references: [id])
+  companyId  String?          @db.Uuid // Référence facultative à l'entreprise évaluée
+  company    CompanyProfile?  @relation("CompanyReviews", fields: [companyId], references: [id])
+  
+  createdAt  DateTime         @default(now()) // Date de création
+  updatedAt  DateTime         @default(now()) // Date de dernière mise à jour
 }
 
-model ActivityLog {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id])
-  action      String
-  createdAt   DateTime @default(now())
+// MODELS : PROJETS, DOCUMENTS & SUIVI
+//////////////////////////////////
+
+model Project {
+  id               String           @id @default(uuid()) @db.Uuid
+  name             String           // Nom du projet
+  description      String?         // Description du projet
+  location         String           // Localisation du projet
+  floor            Int?            // Étage du projet
+  roomCount        Int?            // Nombre de pièces
+
+  // Informations techniques
+  technicalInfo    String?         // Informations techniques sur le projet
+  roomDetails      Json?           // Détails spécifiques par pièce sous format JSON
+  status           ProjectStatus    @default(DRAFT) // Statut du projet
+
+  // Références aux utilisateurs
+  clientId         String          @db.Uuid // Référence au client
+  client           ClientProfile    @relation("ClientProjects", fields: [clientId], references: [id])
+
+  // Documents associés
+  documents        Document[]       @relation("ProjectDocuments") // Documents liés au projet
+  workItems        WorkItem[]       @relation("ProjectWorkItems") // Postes de travail associés
+  
+  // Matériaux et devis
+  materials        Material[]       @relation("ProjectMaterials") // Matériaux associés
+  quotes           Quote[]          @relation("ProjectQuotes") // Devis associés
+  planning         Planning?        // Planification intelligente par IA
+
+  // Liens associés
+  accessLinks      AccessLink[]     @relation("ProjectAccessLinks") // Liens d'accès au projet
+  meeting          Meeting?         // Réunion de chantier planifiée
+  tasks            Task[]           // Tâches associées
+  
+  // Nouveau : Suivi des photos avant/après
+  beforeAfterPhotos BeforeAfterPhoto[] @relation("ProjectBeforeAfterPhotos")
+
+  updates          ProjectUpdate[]    // Mises à jour et remontées des imprévus
+  chatRoom         ChatRoom?          // Chat intégré pour la communication
+  invitations      Invitation[]        @relation("ProjectInvitations") // Invitations liées au projet
+  invitedCompanies CompanyProfile[]    @relation("InvitedCompanies") // Entreprises invitées au projet
+
+  // Timestamps
+  createdAt        DateTime            @default(now()) // Date de création
+  updatedAt        DateTime            @updatedAt // Date de dernière mise à jour
+}
+
+model Document {
+  id           String           @id @default(uuid()) @db.Uuid
+  title        String           // Titre du document
+  type         DocumentType     // Type de document
+  category     DocumentCategory  // Catégorie du document
+  url          String           // URL ou chemin du fichier
+  description  String?          // Description du document
+  autoGenerated Boolean         @default(false) // Indique si le document a été généré automatiquement
+  projectId    String?          @db.Uuid // Référence facultative au projet
+  project      Project?         @relation("ProjectDocuments", fields: [projectId], references: [id]) // Relation avec le projet
+  workSiteId   String?          @db.Uuid // Référence facultative au chantier
+  workSite     WorkSite?       @relation("WorkSiteDocuments", fields: [workSiteId], references: [id]) // Relation avec le chantier
+
+  // Timestamps
+  createdAt    DateTime         @default(now()) // Date de création
+  updatedAt    DateTime         @default(now()) // Date de dernière mise à jour
+}
+
+model UploadedFile {
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String?           // Nom du fichier
+  description     String?           // Description du fichier
+  url             String            // URL ou chemin d'accès
+  path            String            @unique // Chemin d'accès unique
+  type            UploadedFileType  // Type de fichier
+  fileType        String            // Type MIME du fichier
+  size            Int               // Taille du fichier en octets
+  extension       String            // Extension du fichier
+
+  // Nous allons maintenir les ID des photos mais sans définir d'attributs d'identification là-dedans.
+  beforePhotoOfId String?           @unique @db.Uuid // Référence unique à une photo avant
+  beforePhotoOf   BeforeAfterPhoto? @relation("BeforePhotos") // Relation unidirectionnelle
+
+  afterPhotoOfId  String?           @unique @db.Uuid // Référence unique à une photo après
+  afterPhotoOf    BeforeAfterPhoto? @relation("AfterPhotos") // Relation unidirectionnelle
+
+  uploadedById    String?           @db.Uuid
+  uploader        User?             @relation("UploadedFiles", fields: [uploadedById], references: [id])
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now())
+}
+
+model WorkItem {
+  id              String             @id @default(uuid()) @db.Uuid
+  description     String             // Description du poste de travail
+  quantity        Int?               // Quantité ou surface
+  projectId       String             @db.Uuid // Référence au projet
+  project         Project            @relation("ProjectWorkItems", fields: [projectId], references: [id]) // Relation avec le projet
+  quoteDetails    QuoteDetail[]      // Détails de devis liés à ce poste
+  
+  // Timestamps
+  createdAt       DateTime           @default(now()) // Date de création
+  updatedAt       DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model Material {
+  id              String             @id @default(uuid()) @db.Uuid
+  name            String             // Nom du matériau
+  type            MaterialType       // Type de matériau
+  color           String?            // Couleur (facultatif)
+  unitPrice       Float?             // Prix unitaire du matériau (facultatif)
+  quantity        Int?               // Quantité disponible (facultatif)
+  projectId       String?            @db.Uuid // Référence facultative au projet
+  project         Project?           @relation("ProjectMaterials", fields: [projectId], references: [id]) // Relation avec le projet
+  workSiteId      String?            @db.Uuid // Référence facultative au chantier
+  workSite       WorkSite?          @relation("WorkSiteMaterials", fields: [workSiteId], references: [id]) // Relation avec le chantier
+
+  // Timestamps
+  createdAt       DateTime           @default(now()) // Date de création
+  updatedAt       DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model Quote {
+  id               String             @id @default(uuid()) @db.Uuid
+  companyId        String             @db.Uuid // Référence à l'entreprise émettrice du devis
+  company          CompanyProfile      @relation("CompanyQuotes", fields: [companyId], references: [id]) // Relation avec le profil d'entreprise
+
+  projectId        String             @db.Uuid // Référence au projet
+  project          Project            @relation("ProjectQuotes", fields: [projectId], references: [id]) // Relation avec le projet
+  
+  estimatedAmount  Float              // Montant estimé du devis
+  availability     Json?              // Disponibilités proposées sous format JSON
+  estimatedDuration Int                // Durée estimée pour réaliser les travaux
+  remarks          String?            // Remarques supplémentaires
+  status           QuoteStatus        @default(PENDING) // Statut du devis
+  quoteDetails     QuoteDetail[]      // Détails associés au devis
+
+  invoice          Invoice?           @relation("QuoteInvoice") // Référence à la facture associée (facultatif)
+  
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model QuoteDetail {
+  id               String            @id @default(uuid()) @db.Uuid
+  quoteId         String            @db.Uuid // Référence au devis
+  quote           Quote             @relation(fields: [quoteId], references: [id]) // Relation avec le devis
+  workItemId      String            @db.Uuid // Référence au poste de travail
+  workItem        WorkItem          @relation(fields: [workItemId], references: [id]) // Relation avec le poste de travail
+  price           Float             // Prix proposé pour ce poste
+  duration        Int               // Durée estimée pour ce poste
+  remarks         String?           // Remarques supplémentaires
+
+  // Timestamps
+  createdAt       DateTime          @default(now()) // Date de création
+  updatedAt       DateTime          @default(now()) // Date de dernière mise à jour
+}
+
+model Planning {
+  id               String             @id @default(uuid()) @db.Uuid
+  projectId        String             @unique @db.Uuid // Référence unique au projet
+  project          Project            @relation(fields: [projectId], references: [id]) // Relation avec le projet
+  
+  proposals        Json               // Propositions initiales sous format JSON (dates, séquences, etc.)
+  confirmedDate    DateTime?         // Date de validation du planning
+  optimizedPlan    Json?              // Plan optimisé généré par l'IA
+  generatedByAI   Boolean            @default(true) // Indique si le plan a été généré par IA
+  
+  // Timestamps
+  createdAt       DateTime           @default(now()) // Date de création
+  updatedAt       DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model AccessLink {
+  id               String             @id @default(uuid()) @db.Uuid
+  code             String             @unique // Code d'accès unique
+  url              String             @unique // URL dédiée au projet
+  qrCode           String?            // QR code (facultatif)
+
+  // Compteur d'utilisation et date d'expiration
+  usageCount       Int                @default(0) // Compteur d'utilisation
+  maxUsage         Int?               // Utilisation maximale autorisée (facultatif)
+  expiresAt        DateTime           // Date d'expiration du lien
+  used             Boolean            @default(false) // Indique si le lien a été utilisé
+
+  // Référence au projet
+  projectId        String             @db.Uuid
+  project          Project            @relation("ProjectAccessLinks", fields: [projectId], references: [id]) // Relation avec le projet
+
+  // Références aux utilisateurs
+  createdById      String?            @db.Uuid // Utilisateur ayant créé le lien
+  createdBy        User?              @relation("CreatedAccessLinks", fields: [createdById], references: [id])
+
+  usedById         String?            @db.Uuid // Utilisateur ayant utilisé le lien (facultatif)
+  usedBy           User?              @relation("UsedAccessLinks", fields: [usedById], references: [id])
+
+  // Timestamps
+  createdAt       DateTime           @default(now()) // Date de création
+  updatedAt       DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model Meeting {
+  id               String             @id @default(uuid()) @db.Uuid
+  projectId        String             @unique @db.Uuid // Référence unique au projet
+  project          Project            @relation(fields: [projectId], references: [id]) // Relation avec le projet
+  
+  proposedDates    Json               // Tableau des dates proposées sous format JSON
+  status           MeetingStatus      @default(PENDING) // Statut de la réunion
+  responses        MeetingResponse[]   // Réponses des participants
+  
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model MeetingResponse {
+  id               String             @id @default(uuid()) @db.Uuid
+  meetingId        String             @db.Uuid // Référence à la réunion
+  meeting          Meeting            @relation(fields: [meetingId], references: [id])
+  
+  userId           String             @db.Uuid // Référence à l'utilisateur
+  user             User               @relation("MeetingResponseUser", fields: [userId], references: [id]) // Relation vers l'utilisateur
+  
+  response         AvailabilityStatus  // Réponse donnée
+  comment          String?            // Commentaire facultatif
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now())
+}
+
+// MODELS : TÂCHES & SUIVI D'EXÉCUTION
+//////////////////////////////////
+
+model Task {
+  id             String       @id @default(uuid()) @db.Uuid
+  description    String       // Description de la tâche
+  startDate      DateTime     // Date de début de la tâche
+  endDate        DateTime?    // Date de fin (facultatif)
+  status         TaskStatus   // Statut de la tâche
+  priority       Int?         // Priorité de la tâche (facultatif)
+
+  // Références aux projets et chantiers
+  projectId      String?      @db.Uuid // Référence facultative au projet
+  project        Project?     @relation(fields: [projectId], references: [id]) // Relation avec le projet
+
+  workSiteId     String?      @db.Uuid // Référence facultative au chantier
+  workSite       WorkSite?    @relation(fields: [workSiteId], references: [id]) // Relation avec le chantier
+
+  taskProgresses  TaskProgress[] // Suivi des progrès de la tâche
+
+  // Timestamps
+  createdAt      DateTime     @default(now()) // Date de création
+  updatedAt      DateTime     @default(now()) // Date de dernière mise à jour
+}
+
+model TaskProgress {
+  id              String          @id @default(uuid()) @db.Uuid
+  taskId          String          @db.Uuid // Référence au task
+  task            Task            @relation(fields: [taskId], references: [id]) // Relation avec la tâche
+  
+  userId          String          @db.Uuid // Référence à l'utilisateur
+  user            User            @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
+  
+  actionDate      DateTime        @default(now()) // Date de l'action
+  status          TaskStatus      // Statut du suivi
+  message         String?         // Message facultatif associé
+
+  // Timestamps
+  createdAt       DateTime        @default(now()) // Date de création
+  updatedAt       DateTime        @default(now()) // Date de dernière mise à jour
+}
+
+// MODELS : CHAT , COMMUNICATION & NOTIFICATION
+//////////////////////////////////
+
+model ChatRoom {
+  id               String             @id @default(uuid()) @db.Uuid
+  projectId        String             @unique @db.Uuid // Référence unique au projet
+  project          Project            @relation(fields: [projectId], references: [id]) // Relation avec le projet
+  
+  messages         Message[]         // Liste des messages dans la discussion
+  participants     ChatParticipant[]   // Liste des participants au chat
+  
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model ChatParticipant {
+  id               String             @id @default(uuid()) @db.Uuid
+  chatRoomId       String             @db.Uuid // Référence au chat
+  userId           String             @db.Uuid // Référence à l'utilisateur
+  chatRoom        ChatRoom            @relation(fields: [chatRoomId], references: [id]) // Relation avec le chat
+  user            User                @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
+
+  joinedAt        DateTime           @default(now()) // Date d'entrée dans le chat
+  @@unique([chatRoomId, userId]) // Empêche les participants répétitifs dans le même chat
+}
+
+model Message {
+  id               String             @id @default(uuid()) @db.Uuid
+  content          String             // Contenu du message
+  status           MessageStatus      @default(UNREAD) // Statut du message
+  senderId         String             @db.Uuid // Référence à l'utilisateur expéditeur
+  sender           User               @relation("SentMessages", fields: [senderId], references: [id]) // Relation avec l'utilisateur
+  recipientId      String             @db.Uuid // Référence à l'utilisateur destinataire
+  recipient        User               @relation("ReceivedMessages", fields: [recipientId], references: [id]) // Relation avec l'utilisateur
+  chatRoomId       String             @db.Uuid // Référence au chat
+  chatRoom         ChatRoom           @relation(fields: [chatRoomId], references: [id]) // Relation avec le chat
+
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+model Notification {
+  id               String             @id @default(uuid()) @db.Uuid
+  userId           String             @db.Uuid // Référence à l'utilisateur
+  user             User               @relation("UserNotifications", fields: [userId], references: [id]) // Relation avec l'utilisateur
+  
+  type             NotificationType    // Type de notification (ex : paiement, mise à jour, etc.)
+  message          String              // Message associé à la notification
+  isRead           Boolean            @default(false) // Indique si la notification a été lue
+
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
+}
+
+// MODELS : WORKSITE & PHOTOS AVANT/APRÈS
+//////////////////////////////////
+
+model WorkSite {
+  id                String              @id @default(uuid()) @db.Uuid
+  name              String              // Nom du chantier
+  status            WorkStatus          // Statut du chantier
+  companyId         String              @db.Uuid // Référence à l'entreprise
+  company           CompanyProfile       @relation("CompanyWorkSites", fields: [companyId], references: [id]) // Indique que c'est la Relation avec CompanyProfile
+  
+  documents         Document[]          @relation("WorkSiteDocuments") 
+  materials         Material[]          @relation("WorkSiteMaterials") 
+  tasks             Task[]              // Tâches associées au chantier
+  beforeAfterPhotos BeforeAfterPhoto[]   @relation("WorkSitePhotos") // Photos avant/après liées au chantier
+
+  // Timestamps
+  createdAt         DateTime            @default(now()) 
+  updatedAt         DateTime            @updatedAt 
+}
+
+model BeforeAfterPhoto {
+  id               String           @id @default(uuid()) @db.Uuid
+  title            String           // Titre de la photo
+  description      String?          // Description optionnelle de la photo
+  
+  beforePhotoId    String           @unique @db.Uuid // Identifiant unique pour la photo avant
+  beforePhoto      UploadedFile     @relation("BeforePhotos", fields: [beforePhotoId], references: [id]) 
+  
+  afterPhotoId     String           @unique @db.Uuid // Identifiant unique pour la photo après
+  afterPhoto       UploadedFile     @relation("AfterPhotos", fields: [afterPhotoId], references: [id])
+
+  projectId        String?          @db.Uuid // Référence facultative au projet
+  project          Project?         @relation("ProjectBeforeAfterPhotos", fields: [projectId], references: [id])
+  
+  workSiteId       String           @db.Uuid // Référence au chantier
+  workSite         WorkSite         @relation("WorkSitePhotos", fields: [workSiteId], references: [id])
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
+}
+
+// MODELS : MISES À JOUR & REMONTÉES
+//////////////////////////////////
+
+model ProjectUpdate {
+  id               String            @id @default(uuid()) @db.Uuid
+  projectId        String             @db.Uuid // Référence au projet
+  project          Project           @relation(fields: [projectId], references: [id]) // Relation avec le projet
+  
+  userId           String             @db.Uuid // Référence à l'utilisateur
+  user             User               @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
+  
+  title            String             // Titre de la mise à jour (ex : "Avancement travaux", "Problème détecté")
+  description      String            // Description de la mise à jour
+  severity         Int?               // Gravité (facultatif)
+  
+  // Timestamps
+  createdAt        DateTime           @default(now()) // Date de création
+  updatedAt        DateTime           @default(now()) // Date de dernière mise à jour
 }

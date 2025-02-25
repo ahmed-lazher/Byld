@@ -1,197 +1,461 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-const saltRounds = 10;
 
-async function hashPassword(password: string) {
-  return bcrypt.hash(password, saltRounds);
-}
+// Fonction pour le hashage des mots de passe
+const hashPassword = (password: string) => {
+    return bcrypt.hashSync(password, 10);
+};
 
 async function main() {
-  console.log("Seeding database...");
+    // Création des utilisateurs
+    const users = await Promise.all([
+        // Clients
+        prisma.user.create({
+            data: {
+                email: 'client1@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Alice Dupont',
+                role: 'CLIENT',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                email: 'client2@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Benoit Martin',
+                role: 'CLIENT',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                email: 'client3@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Claire Leroy',
+                role: 'CLIENT',
+            },
+        }),
+        // Entreprises
+        prisma.user.create({
+            data: {
+                email: 'company1@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Société de Rénovation SA',
+                role: 'COMPANY',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                email: 'company2@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Maçons Experts',
+                role: 'COMPANY',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                email: 'company3@example.com',
+                passwordHash: hashPassword('password123'),
+                name: 'Électriciens Unis',
+                role: 'COMPANY',
+            },
+        }),
+        // Administrateur
+        prisma.user.create({
+            data: {
+                email: 'admin@example.com',
+                passwordHash: hashPassword('adminpassword'),
+                name: 'Admin Système',
+                role: 'ADMIN',
+            },
+        }),
+    ]);
 
-  // Hash des mots de passe
-  const hashedPassword = await hashPassword("password");
+    // Création de profils clients
+    const clientProfiles = await Promise.all([
+        prisma.clientProfile.create({
+            data: {
+                userId: users[0].id,
+                firstName: 'Alice',
+                lastName: 'Dupont',
+                phone: '01 23 45 67 89',
+                address: '5 Rue de la République, Paris',
+            },
+        }),
+        prisma.clientProfile.create({
+            data: {
+                userId: users[1].id,
+                firstName: 'Benoit',
+                lastName: 'Martin',
+                phone: '01 23 45 67 90',
+                address: '10 Avenue de France, Lyon',
+            },
+        }),
+        prisma.clientProfile.create({
+            data: {
+                userId: users[2].id,
+                firstName: 'Claire',
+                lastName: 'Leroy',
+                phone: '01 23 45 67 91',
+                address: '15 Boulevard Saint-Germain, Paris',
+            },
+        }),
+    ]);
 
-  // Transaction pour garantir l'intégrité des données
-	const transaction = await prisma.$transaction([
-	  // Suppression des données dans les tables enfants (qui dépendent d'autres tables)
-	  prisma.activityLog.deleteMany(),
-	  prisma.notification.deleteMany(),
-	  prisma.message.deleteMany(),
-	  prisma.review.deleteMany(),
-	  prisma.payment.deleteMany(),
-	  prisma.task.deleteMany(),
-	  prisma.chat.deleteMany(),
-	  prisma.document.deleteMany(),
-	  prisma.quote.deleteMany(),
-	  prisma.projectCompany.deleteMany(),
+    // Création de profils d'entreprises
+    const companyProfiles = await Promise.all([
+        prisma.companyProfile.create({
+            data: {
+                userId: users[3].id,
+                companyName: 'Société de Rénovation SA',
+                address: '1 Place des Victoires, Paris',
+                phone: '01 12 34 56 78',
+                qualifications: 'Qualibat RGE',
+            },
+        }),
+        prisma.companyProfile.create({
+            data: {
+                userId: users[4].id,
+                companyName: 'Maçons Experts',
+                address: '22 Rue de la Construction, Marseille',
+                phone: '01 98 76 54 32',
+                qualifications: 'Artisan Qualifié',
+            },
+        }),
+        prisma.companyProfile.create({
+            data: {
+                userId: users[5].id,
+                companyName: 'Électriciens Unis',
+                address: '34 Avenue de l’Innovation, Lyon',
+                phone: '01 45 67 89 01',
+                qualifications: 'Artisan Électricien',
+            },
+        }),
+    ]);
 
-	  // Suppression des données dans les tables principales
-	  prisma.subscription.deleteMany(),
-	  prisma.profile.deleteMany(),
-	  prisma.project.deleteMany(),
-	  prisma.company.deleteMany(),
-	  prisma.user.deleteMany()
+    // Création d'abonnements
+    const subscriptions = await Promise.all([
+        prisma.subscription.create({
+            data: {
+                type: 'ANNUAL',
+                status: 'ACTIVE',
+                client: { connect: { id: clientProfiles[0].id } },
+            },
+        }),
+        prisma.subscription.create({
+            data: {
+                type: 'CREDIT',
+                status: 'ACTIVE',
+                client: { connect: { id: clientProfiles[1].id } },
+            },
+        }),
+        prisma.subscription.create({
+            data: {
+                type: 'ANNUAL',
+                status: 'ACTIVE',
+                client: { connect: { id: clientProfiles[2].id } },
+            },
+        }),
+    ]);
+
+    // Création de projets
+    const projects = await Promise.all([
+        prisma.project.create({
+            data: {
+                name: 'Rénovation Appartement Paris',
+                location: '5 Rue de la République, Paris',
+                floor: 2,
+                roomCount: 4,
+                client: { connect: { id: clientProfiles[0].id } },
+                status: 'DRAFT',
+            },
+        }),
+        prisma.project.create({
+            data: {
+                name: 'Rénovation Maison Lyon',
+                location: '10 Avenue de France, Lyon',
+                floor: 1,
+                roomCount: 6,
+                client: { connect: { id: clientProfiles[1].id } },
+                status: 'DRAFT',
+            },
+        }),
+        prisma.project.create({
+            data: {
+                name: 'Rénovation Bureau Paris',
+                location: '15 Boulevard Saint-Germain, Paris',
+                floor: 3,
+                roomCount: 3,
+                client: { connect: { id: clientProfiles[2].id } },
+                status: 'DRAFT',
+            },
+        }),
+    ]);
+
+    // Création de devis
+    const quotes = await Promise.all([
+        prisma.quote.create({
+            data: {
+                company: { connect: { id: companyProfiles[0].id } },
+                project: { connect: { id: projects[0].id } },
+                estimatedAmount: 15000,
+                estimatedDuration: 30,
+                status: 'PENDING',
+            },
+        }),
+        prisma.quote.create({
+            data: {
+                company: { connect: { id: companyProfiles[1].id } },
+                project: { connect: { id: projects[1].id } },
+                estimatedAmount: 25000,
+                estimatedDuration: 45,
+                status: 'PENDING',
+            },
+        }),
+        prisma.quote.create({
+            data: {
+                company: { connect: { id: companyProfiles[2].id } },
+                project: { connect: { id: projects[2].id } },
+                estimatedAmount: 12000,
+                estimatedDuration: 20,
+                status: 'PENDING',
+            },
+        }),
+    ]);
+
+    // Création de travaux associés à chaque projet
+    const workItems = await Promise.all([
+        prisma.workItem.create({
+            data: {
+                description: 'Peinture salon et couloir',
+                project: { connect: { id: projects[0].id } },
+                quantity: 100,
+            },
+        }),
+        prisma.workItem.create({
+            data: {
+                description: 'Changement de fenêtres',
+                project: { connect: { id: projects[0].id } },
+                quantity: 5,
+            },
+        }),
+        prisma.workItem.create({
+            data: {
+                description: 'Rénovation cuisine complète',
+                project: { connect: { id: projects[1].id } },
+                quantity: 1,
+            },
+        }),
+        prisma.workItem.create({
+            data: {
+                description: 'Installation électrique complète',
+                project: { connect: { id: projects[2].id } },
+                quantity: 1,
+            },
+        }),
+    ]);
+
+    // Création de détails de devis associés
+    await Promise.all([
+        prisma.quoteDetail.create({
+            data: {
+                quote: { connect: { id: quotes[0].id } },
+                workItem: { connect: { id: workItems[0].id } },
+                price: 2000,
+                duration: 10,
+            },
+        }),
+        prisma.quoteDetail.create({
+            data: {
+                quote: { connect: { id: quotes[0].id } },
+                workItem: { connect: { id: workItems[1].id } },
+                price: 5000,
+                duration: 15,
+            },
+        }),
+        prisma.quoteDetail.create({
+            data: {
+                quote: { connect: { id: quotes[1].id } },
+                workItem: { connect: { id: workItems[2].id } },
+                price: 18000,
+                duration: 30,
+            },
+        }),
+        prisma.quoteDetail.create({
+            data: {
+                quote: { connect: { id: quotes[2].id } },
+                workItem: { connect: { id: workItems[3].id } },
+                price: 5000,
+                duration: 15,
+            },
+        }),
+    ]);
+
+    // Création d'éléments de matériau
+    const materials = await Promise.all([
+        prisma.material.create({
+            data: {
+                name: 'Peinture Blanche',
+                type: 'PAINT',
+                unitPrice: 30,
+                quantity: 100,
+                project: { connect: { id: projects[0].id } },
+            },
+        }),
+        prisma.material.create({
+            data: {
+                name: 'Fenêtres PVC',
+                type: 'OTHER',
+                unitPrice: 300,
+                quantity: 5,
+                project: { connect: { id: projects[0].id } },
+            },
+        }),
+        prisma.material.create({
+            data: {
+                name: 'Carrelage',
+                type: 'TILE',
+                unitPrice: 45,
+                quantity: 250,
+                project: { connect: { id: projects[1].id } },
+            },
+        }),
+        prisma.material.create({
+            data: {
+                name: 'Câblage Électrique',
+                type: 'OTHER',
+                unitPrice: 50,
+                quantity: 100, // mètres
+                project: { connect: { id: projects[2].id } },
+            },
+        }),
+    ]);
+
+    // Création de réunions de chantier
+    const meetings = await Promise.all([
+        prisma.meeting.create({
+            data: {
+                project: { connect: { id: projects[0].id } },
+                proposedDates: JSON.stringify(['2023-10-01', '2023-10-02']),
+                status: 'PENDING',
+            },
+        }),
+        prisma.meeting.create({
+            data: {
+                project: { connect: { id: projects[1].id } },
+                proposedDates: JSON.stringify(['2023-10-03', '2023-10-04']),
+                status: 'PENDING',
+            },
+        }),
+    ]);
+
+    // Création de mises à jour de projet
+    await Promise.all([
+        prisma.projectUpdate.create({
+            data: {
+                project: { connect: { id: projects[0].id } },
+                user: { connect: { id: users[3].id } },
+                title: 'Avancement des travaux',
+                description: 'Peinture terminée et fenêtres posées.',
+                severity: 2,
+            },
+        }),
+        prisma.projectUpdate.create({
+            data: {
+                project: { connect: { id: projects[1].id } },
+                user: { connect: { id: users[4].id } },
+                title: 'Problème détecté',
+                description: 'Retard sur l\'approvisionnement du carrelage.',
+                severity: 5,
+            },
+        }),
+        prisma.projectUpdate.create({
+            data: {
+                project: { connect: { id: projects[2].id } },
+                user: { connect: { id: users[5].id } },
+                title: 'Mise à jour',
+                description: 'Préparation de l\'installation électrique.',
+                severity: 1,
+            },
+        }),
+    ]);
+
+	// Création d'invitations à des projets
+	const invitations = await Promise.all([
+		prisma.invitation.create({
+			data: {
+				token: 'InvitationToken1',
+				email: 'contact@company1.com',
+				project: { connect: { id: projects[0].id } },
+				sender: { connect: { id: users[0].id } },
+				recipient: { connect: { id: users[3].id } },
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expires in 24 hours
+			},
+		}),
+		prisma.invitation.create({
+			data: {
+				token: 'InvitationToken2',
+				email: 'contact@company2.com',
+				project: { connect: { id: projects[1].id } },
+				sender: { connect: { id: users[1].id } },
+				recipient: { connect: { id: users[4].id } },
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expires in 24 hours
+			},
+		}),
+		prisma.invitation.create({
+			data: {
+				token: 'InvitationToken3',
+				email: 'contact@company3.com',
+				project: { connect: { id: projects[2].id } },
+				sender: { connect: { id: users[2].id } },
+				recipient: { connect: { id: users[5].id } },
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expires in 24 hours
+			},
+		}),
 	]);
 
+    // Création de logs d'activité
+    await Promise.all([
+        prisma.log.create({
+            data: {
+                userId: users[0].id,
+                type: 'INFO',
+                message: 'Alice a créé un nouveau projet pour rénovation à Paris.',
+                action: 'CREATE_PROJECT',
+            },
+        }),
+        prisma.log.create({
+            data: {
+                userId: users[3].id,
+                type: 'INFO',
+                message: 'Société de Rénovation SA a soumis un devis pour le projet à Paris.',
+                action: 'SUBMIT_QUOTE',
+            },
+        }),
+        prisma.log.create({
+            data: {
+                userId: users[1].id,
+                type: 'WARNING',
+                message: 'Benoit a signalé un problème d’approvisionnement.',
+                action: 'REPORT_ISSUE',
+            },
+        }),
+        prisma.log.create({
+            data: {
+                userId: users[5].id,
+                type: 'INFO',
+                message: 'Électriciens Unis préparant les installations électriques dans le projet de bureau.',
+                action: 'PREPARE_WORK',
+            },
+        }),
+    ]);
 
-  console.log("Database cleared successfully.");
-
-  // Insertion des utilisateurs avec mot de passe haché
-  const users = await prisma.user.createMany({
-    data: [
-      { id: "1", email: "alice@example.com", password: hashedPassword, role: "USER" },
-      { id: "2", email: "pro@example.com", password: hashedPassword, role: "PRO" },
-      { id: "3", email: "admin@example.com", password: hashedPassword, role: "ADMIN" },
-    ],
-    skipDuplicates: true,
-  });
-
-  // Insertion des profils utilisateurs
-  const profiles = await prisma.profile.createMany({
-    data: [
-      { id: "1", userId: "1", firstName: "Alice", lastName: "Dupont", phone: "123456789", address: "Paris" },
-      { id: "2", userId: "2", firstName: "Entreprise", lastName: "XYZ", phone: "987654321", address: "Lyon" },
-    ],
-  });
-
-  // Insertion des abonnements
-  const subscriptions = await prisma.subscription.createMany({
-    data: [
-      { id: "1", userId: "1", plan: "Basic", startDate: new Date(), endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), status: "ACTIVE" },
-      { id: "2", userId: "2", plan: "Premium", startDate: new Date(), endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), status: "ACTIVE" },
-    ],
-  });
-
-  // Insertion de l'entreprise pour le professionnel
-  const company = await prisma.company.create({
-    data: {
-      id: "1",
-      userId: "2",
-      name: "Entreprise XYZ",
-      industry: "Rénovation",
-      description: "Spécialiste en rénovation intérieure.",
-    },
-  });
-
-  // Insertion des projets
-  const project = await prisma.project.create({
-    data: {
-      id: "1",
-      userId: "1",
-      name: "Rénovation Appartement Paris",
-      location: "Paris",
-      floor: 3,
-      rooms: 4,
-      description: "Modernisation complète de l'intérieur.",
-      technicalInfo: "Matériaux haut de gamme",
-      status: "IN_PROGRESS",
-    },
-  });
-
-  // Association des entreprises aux projets
-  await prisma.projectCompany.create({
-    data: {
-      id: "1",
-      projectId: project.id,
-      companyId: company.id,
-    },
-  });
-
-  // Création des devis avec des détails supplémentaires
-  const quote = await prisma.quote.create({
-    data: {
-      id: "1",
-      projectId: project.id,
-      companyId: company.id,
-      totalCost: 15000,
-      details: { services: ["Peinture", "Électricité", "Plomberie"] },
-      estimatedDuration: 30,
-      status: "PENDING",
-    },
-  });
-
-  // Création des tâches avec des dates d'échéance et des priorités
-  await prisma.task.createMany({
-    data: [
-      { id: "1", projectId: project.id, title: "Démolition", description: "Enlever les anciens revêtements.", status: "PENDING", endDate: new Date("2025-03-01"), priority: "HIGH" },
-      { id: "2", projectId: project.id, title: "Peinture", description: "Application de nouvelles couleurs.", status: "IN_PROGRESS", endDate: new Date("2025-03-10"), priority: "MEDIUM" },
-      { id: "3", projectId: project.id, title: "Plomberie", description: "Remplacement des tuyaux", status: "PENDING", endDate: new Date("2025-03-15"), priority: "LOW" },
-    ],
-  });
-
-  // Création des paiements
-  await prisma.payment.create({
-    data: {
-      id: "1",
-      userId: "1",
-      amount: 5000,
-      status: "SUCCESS",
-      paymentDate: new Date(),
-    },
-  });
-
-  // Création des documents associés au projet
-  await prisma.document.createMany({
-    data: [
-      { id: "1", projectId: project.id, type: "PLAN", url: "https://example.com/plan.pdf" },
-      { id: "2", projectId: project.id, type: "PHOTO", url: "https://example.com/photo.jpg" },
-    ],
-  });
-
-  // Création des notifications pour les utilisateurs
-  await prisma.notification.createMany({
-    data: [
-      { id: "1", userId: "1", content: "Votre projet a été mis à jour.", isRead: false, createdAt: new Date() },
-      { id: "2", userId: "2", content: "Un nouveau devis a été soumis.", isRead: false, createdAt: new Date() },
-    ],
-  });
-
-  // Création des avis pour l'entreprise
-  await prisma.review.create({
-    data: {
-      id: "1",
-      userId: "1",
-      companyId: company.id,
-      rating: 4.5,
-      comment: "Très bon service, équipe professionnelle.",
-      createdAt: new Date(),
-    },
-  });
-
-  // Création du chat et des messages
-  await prisma.chat.create({
-    data: {
-      id: "1",
-      projectId: project.id,
-      messages: {
-        create: [
-          { id: "1", userId: "1", content: "Bonjour, pouvez-vous me donner un devis ?" },
-          { id: "2", userId: "2", content: "Bien sûr, nous allons l'établir." },
-        ],
-      },
-    },
-  });
-
-  // Ajout des logs d'activité
-  await prisma.activityLog.createMany({
-    data: [
-      { id: "1", userId: "1", projectId: project.id, action: "Création du projet", createdAt: new Date() },
-      { id: "2", userId: "2", projectId: project.id, action: "Soumission d'un devis", createdAt: new Date() },
-      { id: "3", userId: "1", projectId: project.id, action: "Révision du devis", createdAt: new Date() },
-    ],
-  });
-
-  console.log("Database seeded successfully.");
+    console.log("Seed data created successfully");
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+    .catch(e => console.error(e))
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
