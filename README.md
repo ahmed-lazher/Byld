@@ -127,7 +127,7 @@ Nous accueillons vos contributions ! Voici comment participer :
 
 ## 🔗 Liens Utiles
 
-Pour des informations plus détaillées, consultez la [documentation complète](https://github.com/ahmed-lazher/Byld/blob/main/documentation/README.md).
+Pour des informations plus détaillées, consultez la [documentation complète](https://github.com/ahmed-lazher/Byld/blob/main/documentation/).
 
 ---
 
