@@ -8,10 +8,10 @@ Bienvenue sur **Byld** 🌟, la plateforme innovante et intuitive dédiée à la
 
 ## 📑 Table des Matières
 
-1. [Présentation](#-présentation)
+1. [Présentation](#%EF%B8%8F-présentation)
    - [Vision et Mission](#-vision-et-mission)
    - [Public Cible](#-public-cible)
-2. [Fonctionnalités](#-fonctionnalités)
+2. [Fonctionnalités](#%EF%B8%8F-fonctionnalités)
 3. [Technologies](#-technologies)
 4. [Installation](#-installation)
    - [Prérequis](#-prérequis)
